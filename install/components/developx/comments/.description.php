@@ -12,5 +12,3 @@ $arComponentDescription = array(
         "SORT" => 40,
     ),
 );
-
-?>

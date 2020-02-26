@@ -1,10 +1,13 @@
 <? if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
-use Bitrix\Main,
-    Bitrix\Main\Loader,
-    Bitrix\Main\Config\Option,
+use Bitrix\Main\Loader,
     Bitrix\Main\Context,
     Bitrix\Main\Localization\Loc;
+
+/**
+ * @var $APPLICATION CMain
+ * @var $USER CUser
+ */
 
 CModule::IncludeModule("iblock");
 Loc::loadMessages(__FILE__);
@@ -15,6 +18,7 @@ class DevelopxCommentsComponent extends \CBitrixComponent
     const CAPTCHA_ACTION = 'commentSent';
     const EVENT_NAME = "DEVELOPX_NEW_COMMENT";
     const MODULE_NAME = 'developx.comments';
+    const CAPTCHA_MODULE_NAME = 'developx.gcaptcha';
 
     public function onPrepareComponentParams($arParams)
     {
@@ -23,6 +27,11 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         }
         if (!isset($arParams['PUBLISH_AT_ONCE'])) {
             $arParams['PUBLISH_AT_ONCE'] = 'Y';
+        }
+        if ($arParams['INCLUDE_GOOGLE_CAPTCHA'] == 'Y' &&
+            !Loader::includeModule(self::CAPTCHA_MODULE_NAME)
+        ) {
+            $arParams['INCLUDE_GOOGLE_CAPTCHA'] = 'N';
         }
         $arParams['CAPTCHA_ACTION'] = self::CAPTCHA_ACTION;
         return $arParams;
@@ -48,11 +57,14 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         }
     }
 
+    /**
+     * @return array
+     */
     private function getFormFields()
     {
         $fields = [
             'NAME' => [
-                'NAME' =>  Loc::getMessage('DX_CMT_OPT_NAME'),
+                'NAME' => Loc::getMessage('DX_CMT_OPT_NAME'),
                 'TYPE' => 'S',
                 'IS_REQUIRED' => 'Y',
             ],
@@ -65,6 +77,11 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         return $fields;
     }
 
+    /**
+     * @param array $fields
+     * @param array $user
+     * @return array
+     */
     private function checkUserDefaults($fields, $user)
     {
         $arUserFileds = [
@@ -90,9 +107,9 @@ class DevelopxCommentsComponent extends \CBitrixComponent
                 $this->addLike($arRequest["ID"], $arRequest["COUNT"]);
             } elseif ($arRequest["ACTION"] == 'addComment') {
                 if (
-                    $this->arParams['AJAX_ID'] == $arRequest['bxajaxid'] &&
+                    $this->checkAjax($arRequest['bxajaxid']) &&
                     $this->checkFieldsResult($arRequest['RESULT']) &&
-                    $this->checkCaptcha($arRequest)
+                    $this->checkCaptcha()
                 ) {
                     $this->arResult["RESULT"] = $this->addComment();
                 }
@@ -100,11 +117,18 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         }
     }
 
+    /**
+     * @return array
+     */
     private function getRequest()
     {
         return Context::getCurrent()->getRequest();
     }
 
+    /**
+     * @param integer $elementId
+     * @param integer $likesCount
+     */
     private function addLike($elementId, $likesCount)
     {
         $GLOBALS['APPLICATION']->RestartBuffer();
@@ -127,6 +151,19 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         die();
     }
 
+    /**
+     * @param array $bxajaxid
+     * @return boolean
+     */
+    private function checkAjax($bxajaxid)
+    {
+        return ($this->arParams['AJAX_ID'] == $bxajaxid);
+    }
+
+    /**
+     * @param array $arRequestResult
+     * @return boolean
+     */
     public function checkFieldsResult($arRequestResult)
     {
         $checked = true;
@@ -140,38 +177,29 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         return $checked;
     }
 
-    private function checkCaptcha($arRequest)
+    /**
+     * @return boolean
+     */
+    private function checkCaptcha()
     {
-        if (
-            $this->arResult['OPTIONS']['CAPTCHA_ACTIVE'] != 'Y' ||
-            empty($this->arResult['OPTIONS']['CAPTCHA_KEY']) ||
-            empty($this->arResult['OPTIONS']['CAPTCHA_SECRET']) ||
-            empty($this->arResult['OPTIONS']['CAPTCHA_SENS'])
-        ) {
+        if ($this->arParams['INCLUDE_GOOGLE_CAPTCHA'] != 'Y'){
             return true;
         }
-
-        if (!empty($arRequest['token'])) {
-
-            $url_google_api = 'https://www.google.com/recaptcha/api/siteverify';
-            $query = $url_google_api . '?secret=' . $this->arResult['OPTIONS']['CAPTCHA_SECRET'] . '&response=' . $arRequest['token'] . '&remoteip=' . $_SERVER['REMOTE_ADDR'];
-            $data = json_decode(file_get_contents($query));
-
-            if ($data->success && $data->score > $this->arResult['OPTIONS']['CAPTCHA_SENS'] && $data->action == $this->arResult['OPTIONS']['CAPTCHA_ACTION']) {
-                return true;
-            } elseif ($this->arResult['OPTIONS']['CAPTCHA_FAILS_LOG'] == 'Y') {
-                $moduleObj = Developx\Comments\Options::getInstance();
-                $moduleObj->logCaptchaFail($data);
-            }
+        $captchaObj = new Developx\Gcaptcha\Main();
+        if ($captchaObj->checkCaptcha()) {
+            return true;
+        } else {
+            $this->arResult["RESULT"] = [
+                'SUCCESS' => false,
+                'MESSAGE' => Loc::getMessage('DX_CMT_CAPTCHA_ERROR')
+            ];
+            return false;
         }
-
-        $this->arResult["RESULT"] = [
-            'SUCCESS' => false,
-            'MESSAGE' => Loc::getMessage('DX_CMT_CAPTCHA_ERROR')
-        ];
-        return false;
     }
 
+    /**
+     * @return array
+     */
     private function addComment()
     {
         $el = new CIBlockElement;
@@ -217,6 +245,9 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         }
     }
 
+    /**
+     * @param array $fields
+     */
     private function SentMessage($fields)
     {
         CEvent::Send(self::EVENT_NAME, SITE_ID, $fields);
@@ -271,6 +302,9 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         }
     }
 
+    /**
+     * @param array $arPropFields
+     */
     private function addProp($arPropFields)
     {
         $arPropFields['ACTIVE'] = 'Y';
@@ -314,12 +348,16 @@ class DevelopxCommentsComponent extends \CBitrixComponent
             }
             $obCache->EndDataCache($items);
         }
-        foreach ($items as $key => $item){
+        foreach ($items as $key => $item) {
             $items[$key]['CLASS'] = empty($_SESSION['ADDED_LIKES'][$item['ID']]) ? '' : 'liked';
         }
         $this->arResult['ITEMS'] = $items;
     }
 
+    /**
+     * @param string $data
+     * @return string
+     */
     private function getFormatDate($data)
     {
         $date = new DateTime($data);
@@ -327,12 +365,19 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         return $date->format('d') . ' ' . $mounth[(int)$date->format('m') - 1] . ' ' . $date->format('H') . ':' . $date->format('i');
     }
 
+    /**
+     * @param string $type
+     */
     private function clearCache($type)
     {
         $cache = new \CPHPCache();
         $cache->Clean($this->getCacheName($type), '/');
     }
 
+    /**
+     * @param string $type
+     * @return string
+     */
     private function getCacheName($type)
     {
         return self::MODULE_NAME . $type . $this->arParams['IBLOCK_ID'];
@@ -348,10 +393,6 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         if (empty($this->arParams['IBLOCK_ID'])) {
             return;
         }
-
-        Loader::includeModule(self::MODULE_NAME);
-        $moduleObj = Developx\Comments\Options::getInstance();
-        $this->arResult['OPTIONS'] = $moduleObj->getOptions();
 
         $this->getUser();
         $this->prepareFields();

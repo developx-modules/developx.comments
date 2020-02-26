@@ -20,16 +20,16 @@ while ($arr = $rsIBlock->Fetch()) {
 $arComponentParameters = array(
     "GROUPS" => array(
         "FIELDS" => array(
-            "NAME" => GetMessage("DX_CMT_PARAMS_GROUPS_FIELDS"),
+            "NAME" => GetMessage("DX_CMT_PRM_GROUPS_FIELDS"),
         ),
         "ADDITIONALLY" => array(
-            "NAME" => GetMessage("DX_CMT_PARAMS_GROUPS_ADDITIONALLY"),
+            "NAME" => GetMessage("DX_CMT_PRM_GROUPS_ADDITIONALLY"),
         ),
     ),
     "PARAMETERS" => array(
         "IBLOCK_TYPE" => array(
             "PARENT" => "DATA_SOURCE",
-            "NAME" => GetMessage("DX_CMT_PARAMS_ITEM_IBLOCK_TYPE"),
+            "NAME" => GetMessage("DX_CMT_PRM_ITEM_IBLOCK_TYPE"),
             "TYPE" => "LIST",
             "ADDITIONAL_VALUES" => "Y",
             "VALUES" => $arIBlockType,
@@ -37,32 +37,38 @@ $arComponentParameters = array(
         ),
         "IBLOCK_ID" => array(
             "PARENT" => "DATA_SOURCE",
-            "NAME" => GetMessage("DX_CMT_PARAMS_ITEM_IBLOCK_ID"),
+            "NAME" => GetMessage("DX_CMT_PRM_ITEM_IBLOCK_ID"),
             "TYPE" => "LIST",
             "ADDITIONAL_VALUES" => "Y",
             "VALUES" => $arIBlock,
         ),
         "PUBLISH_AT_ONCE" => array(
             "PARENT" => "ADDITIONALLY",
-            "NAME" => GetMessage("DX_CMT_PARAMS_ITEM_PUBLISH_AT_ONCE"),
+            "NAME" => GetMessage("DX_CMT_PRM_ITEM_PUBLISH_AT_ONCE"),
             "TYPE" => "CHECKBOX",
             "DEFAULT" => "Y",
         ),
         "INCLUDE_JQUERY" => array(
             "PARENT" => "ADDITIONALLY",
-            "NAME" => GetMessage("DX_CMT_PARAMS_ITEM_INCLUDE_JQUERY"),
+            "NAME" => GetMessage("DX_CMT_PRM_ITEM_INCLUDE_JQUERY"),
             "TYPE" => "CHECKBOX",
             "DEFAULT" => "Y",
         ),
         "LIKES_SHOW" => array(
             "PARENT" => "ADDITIONALLY",
-            "NAME" => GetMessage("DX_CMT_PARAMS_ITEM_LIKES_SHOW"),
+            "NAME" => GetMessage("DX_CMT_PRM_ITEM_LIKES_SHOW"),
             "TYPE" => "CHECKBOX",
             "DEFAULT" => "Y",
         ),
          "ONE_COMMENT_SESSION" => array(
             "PARENT" => "ADDITIONALLY",
-            "NAME" => GetMessage("DX_CMT_PARAMS_ITEM_ONE_COMMENT_SESSION"),
+            "NAME" => GetMessage("DX_CMT_PRM_ITEM_ONE_COMMENT_SESSION"),
+            "TYPE" => "CHECKBOX",
+            "DEFAULT" => "Y",
+        ),
+        "INCLUDE_GOOGLE_CAPTCHA" => array(
+            "PARENT" => "ADDITIONALLY",
+            "NAME" => GetMessage("DX_CMT_PRM_ITEM_INCLUDE_GOOGLE_CAPTCHA"),
             "TYPE" => "CHECKBOX",
             "DEFAULT" => "Y",
         ),
@@ -71,4 +77,3 @@ $arComponentParameters = array(
         ),
     ),
 );
-?>

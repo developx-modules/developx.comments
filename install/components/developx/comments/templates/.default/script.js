@@ -2,44 +2,12 @@ $(document).ready(function ($) {
     if (window.DevelopxComments)
         return;
 
-    window.DevelopxComments = function (useCaptcha, captchaKey, captchaAction) {
-        this.useCaptcha = useCaptcha;
-        this.captchaKey = captchaKey;
-        this.captchaAction = captchaAction;
-        this.captchaInterval = false;
-        this.initCaptcha();
+    window.DevelopxComments = function () {
         this.initButtons();
         this.initLoader();
     };
 
     window.DevelopxComments.prototype = {
-        initCaptcha: function () {
-            var $this = this;
-            if (
-                typeof grecaptcha == 'undefined' ||
-                $this.useCaptcha != 'Y'
-            ) {
-                return;
-            }
-            grecaptcha.ready(function () {
-                $this.resetCaptcha();
-
-                $this.captchaInterval = setInterval(
-                    function () {
-                        $this.resetCaptcha();
-                    },
-                    150000
-                );
-            });
-        },
-        resetCaptcha: function () {
-            var $this = this;
-            grecaptcha.execute($this.captchaKey, {action: $this.captchaType})
-                .then(function (token) {
-                    console.log(token);
-                    $('.comments-block input[name=token]').val(token);
-                });
-        },
         initButtons: function () {
             var $this = this;
             $('body').on('click', '.backFormShowJs', function () {
@@ -129,4 +97,6 @@ $(document).ready(function ($) {
             })
         },
     }
+
+    DevelopxComments_ = new DevelopxComments();
 });
