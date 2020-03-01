@@ -7,4 +7,5 @@ $MESS ["DX_CMT_PRM_ITEM_PUBLISH_AT_ONCE"] = "Публиковать комментарии сразу(без п
 $MESS ["DX_CMT_PRM_ITEM_INCLUDE_JQUERY"] = "Подключить библиотеку jQuery";
 $MESS ["DX_CMT_PRM_ITEM_LIKES_SHOW"] = "Показывать лайки";
 $MESS ["DX_CMT_PRM_ITEM_ONE_COMMENT_SESSION"] = "Только один комментарий за сессию";
-$MESS ["DX_CMT_PRM_ITEM_INCLUDE_GOOGLE_CAPTCHA"] = "Подключить Гуглкаптчу(через модуль developx.gcaptcha)";
+$MESS ["DX_CMT_PRM_ITEM_INCLUDE_GOOGLE_CAPTCHA"] = "Подключить ГуглКаптчу(через модуль developx.gcaptcha)";
+$MESS ["DX_CMT_PRM_ITEM_AJAX_MODE"] = "Режим Ajax (обязателен для работы компонента)";

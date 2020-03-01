@@ -13,7 +13,7 @@ $MESS ['DX_CMT_EVENT_DESCRIPTION'] = "#ID# - ID комментария
 $MESS ['DX_CMT_EVENT_SUBJECT'] = "На сайте #SITE_NAME# был оставлен новый комментарий - #ID#";
 $MESS ['DX_CMT_EVENT_MESSAGE'] = "На сайте #SITE_NAME# был оставлен новый комментарий<br>
 <br>
-Пользователь: #USER_ID#<br>
+ID пользователя: #USER_ID#<br><br>
 Имя: #NAME#<br>
 Комментарий: #COMMENT#<br>
 Елемент: #ELEMENT_NAME#<br>

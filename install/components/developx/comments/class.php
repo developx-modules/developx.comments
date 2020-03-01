@@ -15,7 +15,6 @@ Loc::loadMessages(__FILE__);
 class DevelopxCommentsComponent extends \CBitrixComponent
 {
     const DEFAULT_CACHE_TIME = 36000000;
-    const CAPTCHA_ACTION = 'commentSent';
     const EVENT_NAME = "DEVELOPX_NEW_COMMENT";
     const MODULE_NAME = 'developx.comments';
     const CAPTCHA_MODULE_NAME = 'developx.gcaptcha';
@@ -33,7 +32,9 @@ class DevelopxCommentsComponent extends \CBitrixComponent
         ) {
             $arParams['INCLUDE_GOOGLE_CAPTCHA'] = 'N';
         }
-        $arParams['CAPTCHA_ACTION'] = self::CAPTCHA_ACTION;
+        $arParams['AJAX_OPTION_JUMP'] = 'N';
+        $arParams['AJAX_OPTION_HISTORY'] = 'N';
+
         return $arParams;
     }
 
@@ -326,7 +327,7 @@ class DevelopxCommentsComponent extends \CBitrixComponent
                 "ACTIVE" => "Y",
                 "PROPERTY_ELEMENT_ID" => !empty($this->arParams['ELEMENT_ID']) ? $this->arParams['ELEMENT_ID'] : false
             ];
-            $res = CIBlockElement::GetList(["ID" => "ASC"], $arFilter, false, false, $arSelect);
+            $res = CIBlockElement::GetList(["ID" => "DESC"], $arFilter, false, false, $arSelect);
             while ($ob = $res->GetNext()) {
                 $arButtons = CIBlock::GetPanelButtons(
                     $this->arParams['IBLOCK_ID'],

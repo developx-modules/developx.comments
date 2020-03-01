@@ -75,5 +75,11 @@ $arComponentParameters = array(
         "CACHE_TIME" => array(
             "DEFAULT" => 36000000,
         ),
+        "AJAX_MODE" => array(
+            "PARENT" => "ADDITIONALLY",
+            "NAME" => GetMessage("DX_CMT_PRM_ITEM_AJAX_MODE"),
+            "TYPE" => "CHECKBOX",
+            "DEFAULT" => "Y",
+        )
     ),
 );

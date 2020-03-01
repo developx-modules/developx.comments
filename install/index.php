@@ -131,5 +131,4 @@ class developx_comments extends CModule
         $et = new CEventType;
         $et->Delete($this->eventName);
     }
-
 }
